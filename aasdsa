@@ -1,0 +1,26 @@
+import PyPDF2
+
+def check_signature_fields(pdf_path):
+    # Open the PDF file
+    with open(pdf_path, "rb") as file:
+        reader = PyPDF2.PdfReader(file)
+        
+        # Check if the PDF has forms
+        if "/AcroForm" in reader.trailer["/Root"]:
+            acro_form = reader.trailer["/Root"]["/AcroForm"]
+            
+            # Check if the AcroForm has fields
+            if "/Fields" in acro_form:
+                fields = acro_form["/Fields"]
+                
+                # Loop through the fields
+                for field in fields:
+                    field_object = field.get_object()
+                    
+                    # Check if the field is a signature field
+                    if "/FT" in field_object and field_object["/FT"] == "/Sig":
+                        print("Signature field found:", field_object)
+                        return True
+        
+        print("No signature fields found.")
+        return False
